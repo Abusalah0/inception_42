@@ -10,6 +10,16 @@ RUN apt-get update \
         mariadb-client \
     && rm -rf /var/lib/apt/lists/*
 
+# Create necessary directories and set permissions
+RUN mkdir -p /var/run/mysqld \
+ && chown -R mysql:mysql /var/run/mysqld \
+ && chmod 755 /var/run/mysqld
+
+# Ensure data directory exists and has correct permissions
+RUN mkdir -p /var/lib/mysql \
+ && chown -R mysql:mysql /var/lib/mysql \
+ && chmod 755 /var/lib/mysql
+
 # copy custom config file to avoid "bind-address" error
 COPY tools/db.conf /etc/mysql/mariadb.conf.d/50-server.cnf
 RUN chmod 644 /etc/mysql/mariadb.conf.d/50-server.cnf
