@@ -17,4 +17,4 @@ clean :
 fclean :
 	docker-compose -f ./srcs/docker-compose.yml down --volumes --rmi all
 
-.PHONY: up down re clean fclean
+.PHONY: up down re clean fclean all build
