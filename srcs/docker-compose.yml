@@ -14,8 +14,6 @@ services:
       - inception_network
     volumes:
       - mariadb_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 30s
@@ -38,10 +36,32 @@ services:
       - inception_network
     volumes:
       - wordpress_data:/var/www/html
-    ports:
-      - "9000:9000"
     healthcheck:
       test: ["CMD-SHELL", "php-fpm7.4 -t"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  nginx:
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    image: nginx:inception
+    container_name: nginx
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    networks:
+      - inception_network
+    volumes:
+      - wordpress_data:/var/www/html:ro
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
       timeout: 10s
       retries: 5
