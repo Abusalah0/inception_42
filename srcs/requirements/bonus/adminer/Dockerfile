@@ -10,7 +10,6 @@ RUN apt-get update \
 
 RUN wget "http://www.adminer.org/latest.php" -O adminer.php
 
-ARG ADMINER_DEFAULT_SERVER=mariadb
 
 EXPOSE 8080
 
