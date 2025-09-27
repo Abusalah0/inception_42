@@ -1,4 +1,4 @@
-name: inception
+# name: inception
 
 services:
   mariadb:
@@ -66,6 +66,20 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+  adminer:
+    build:
+      context: ./requirements/bonus/adminer
+      dockerfile: Dockerfile
+    image: adminer:inception
+    container_name: adminer
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - inception_network
 
 volumes:
   mariadb_data:
