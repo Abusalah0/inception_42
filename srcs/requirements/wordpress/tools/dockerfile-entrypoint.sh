@@ -15,9 +15,9 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
     echo "Database is available, setting up WordPress..."
 
     # Download WordPress core files
-    if [ -z "$(ls -A /var/www/html)" ]; then
-        wp core download --allow-root
-    fi
+    # if [ -z "$(ls -A /var/www/html)" ]; then
+    wp core download --allow-root
+    # fi
 
     # Create wp-config.php file
     wp config create \
