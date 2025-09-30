@@ -24,7 +24,17 @@ RUN chmod +x /usr/local/bin/dockerfile-entrypoint.sh
 # Create nginx user directories
 RUN chown -R www-data:www-data /var/log/nginx /var/cache/nginx
 
-# Expose HTTP port (80) for now, HTTPS (443) later
-EXPOSE 80
+# Create directory for SSL certs
+RUN mkdir -p /etc/nginx/ssl
+
+# Generate self-signed cert
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /etc/nginx/ssl/nginx-selfsigned.key \
+  -out /etc/nginx/ssl/nginx-selfsigned.crt \
+  -subj "/C=JO/ST=Amman/L=Amman/O=42/OU=Student/CN=${DOMAIN_NAME}"
+
+
+# HTTPS (443)
+EXPOSE 443
 
 CMD ["/usr/local/bin/dockerfile-entrypoint.sh"]
