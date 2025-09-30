@@ -80,6 +80,23 @@ services:
         condition: service_healthy
     networks:
       - inception_network
+  static_site:
+    build:
+      context: ./requirements/bonus/static_site
+      dockerfile: Dockerfile
+    image: static_site:inception
+    container_name: static_site
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - inception_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
 volumes:
   mariadb_data:
