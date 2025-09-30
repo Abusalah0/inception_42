@@ -1,0 +1,118 @@
+# name: inception
+
+services:
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    image: mariadb:inception
+    container_name: mariadb
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - inception_network
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+      dockerfile: Dockerfile
+    image: wordpress:inception
+    container_name: wordpress
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - inception_network
+    volumes:
+      - wordpress_data:/var/www/html
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm7.4 -t"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  nginx:
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    image: nginx:inception
+    container_name: nginx
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    networks:
+      - inception_network
+    volumes:
+      - wordpress_data:/var/www/html:ro
+    ports:
+      - "443:443"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://localhost:443"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  adminer:
+    build:
+      context: ./requirements/bonus/adminer
+      dockerfile: Dockerfile
+    image: adminer:inception
+    container_name: adminer
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - inception_network
+  static_site:
+    build:
+      context: ./requirements/bonus/static_site
+      dockerfile: Dockerfile
+    image: static_site:inception
+    container_name: static_site
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - inception_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/abdsalah/data/mariadb
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/abdsalah/data/wordpress
+
+networks:
+  inception_network:
+    driver: bridge
+    name: inception
