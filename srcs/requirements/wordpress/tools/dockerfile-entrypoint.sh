@@ -27,6 +27,9 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
         --dbhost="$WORDPRESS_DB_HOST" \
         --allow-root
 
+    wp config set WP_REDIS_HOST "redis" --allow-root
+    wp config set WP_REDIS_PORT "6379" --raw --allow-root
+
     # Install WordPress
     wp core install \
         --url="$WORDPRESS_URL" \
@@ -36,6 +39,12 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
         --admin_email="$WORDPRESS_ADMIN_EMAIL" \
         --skip-email \
         --allow-root
+
+    # After wp core install
+    wp plugin install redis-cache --activate --allow-root
+
+    # Enable Redis in WordPress
+    wp redis enable --allow-root
 
     echo "WordPress initialized successfully"
 fi

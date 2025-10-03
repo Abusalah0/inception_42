@@ -1,4 +1,4 @@
-# name: inception
+#name: inception
 
 services:
   mariadb:
@@ -97,6 +97,23 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+  redis:
+    build:
+      context: ./requirements/bonus/redis
+      dockerfile: Dockerfile
+    image: redis:inception
+    container_name: redis
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - inception_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
 volumes:
   mariadb_data:
