@@ -5,6 +5,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     wget curl ca-certificates gnupg \
     mariadb-client \
+    php-redis \
     php php-fpm php-cli php-mysql php-curl php-gd php-mbstring php-xml php-zip \
     php-intl php-bcmath php-opcache \
     && rm -rf /var/lib/apt/lists/*

@@ -12,7 +12,13 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
         sleep 5
     done
 
-    echo "Database is available, setting up WordPress..."
+    # Wait for Redis to be available
+    until timeout 5 bash -c '</dev/tcp/redis/6379'; do
+        echo "Waiting for Redis connection..."
+        sleep 5
+    done
+
+    echo "Database and Redis are available, setting up WordPress..."
 
     # Download WordPress core files
     # if [ -z "$(ls -A /var/www/html)" ]; then
@@ -27,6 +33,12 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
         --dbhost="$WORDPRESS_DB_HOST" \
         --allow-root
 
+    # Configure Redis settings
+    wp config set WP_REDIS_HOST "$REDIS_HOST" --allow-root
+    wp config set WP_REDIS_PORT "$REDIS_PORT" --raw --allow-root
+    wp config set WP_REDIS_DATABASE "$WP_REDIS_DATABASE" --raw --allow-root
+    wp config set WP_CACHE true --raw --allow-root
+
     # Install WordPress
     wp core install \
         --url="$WORDPRESS_URL" \
@@ -36,6 +48,12 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
         --admin_email="$WORDPRESS_ADMIN_EMAIL" \
         --skip-email \
         --allow-root
+
+    # After wp core install
+    wp plugin install redis-cache --activate --allow-root
+
+    # Enable Redis in WordPress
+    wp redis enable --allow-root
 
     echo "WordPress initialized successfully"
 fi
