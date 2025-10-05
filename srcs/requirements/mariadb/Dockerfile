@@ -31,5 +31,5 @@ RUN chmod +x /usr/local/bin/dockerfile-entrypoint.sh
 # the port mariadb server listens on
 EXPOSE 3306
 
-# where life starts
+# Start as root to read secrets, entrypoint script runs mysqld as mysql user
 CMD ["dockerfile-entrypoint.sh"]

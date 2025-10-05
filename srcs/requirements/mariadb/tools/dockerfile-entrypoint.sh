@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Read passwords from secrets
+MYSQL_ROOT_PASSWORD=$(cat /run/secrets/mysql_root_password)
+MYSQL_PASSWORD=$(cat /run/secrets/mysql_password)
+
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "MariaDB data directory not found, initializing database..."
     

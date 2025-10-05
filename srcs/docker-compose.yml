@@ -10,12 +10,15 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    networks:
-      - inception_network
+    secrets:
+      - mysql_root_password
+      - mysql_password
     volumes:
       - mariadb_data:/var/lib/mysql
+    networks:
+      - inception_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -29,6 +32,11 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    secrets:
+      - mysql_password
+      - wordpress_admin_password
+    volumes:
+      - wordpress_data:/var/www/html
     depends_on:
       mariadb:
         condition: service_healthy
@@ -36,8 +44,6 @@ services:
         condition: service_healthy
     networks:
       - inception_network
-    volumes:
-      - wordpress_data:/var/www/html
     healthcheck:
       test: ["CMD-SHELL", "php-fpm7.4 -t"]
       interval: 30s
@@ -135,3 +141,11 @@ networks:
   inception_network:
     driver: bridge
     name: inception
+
+secrets:
+  mysql_root_password:
+    file: ../secrets/mysql_root_password.txt
+  mysql_password:
+    file: ../secrets/mysql_password.txt
+  wordpress_admin_password:
+    file: ../secrets/wordpress_admin_password.txt

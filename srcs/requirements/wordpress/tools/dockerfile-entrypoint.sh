@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Read passwords from secrets
+MYSQL_PASSWORD=$(cat /run/secrets/mysql_password)
+WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wordpress_admin_password)
+
 # Change to WordPress directory
 cd /var/www/html
 
@@ -22,7 +26,7 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
 
     # Download WordPress core files
     # if [ -z "$(ls -A /var/www/html)" ]; then
-    wp core download --allow-root
+    wp core download
     # fi
 
     # Create wp-config.php file
@@ -30,14 +34,13 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
         --dbname="$MYSQL_DATABASE" \
         --dbuser="$MYSQL_USER" \
         --dbpass="$MYSQL_PASSWORD" \
-        --dbhost="$WORDPRESS_DB_HOST" \
-        --allow-root
+        --dbhost="$WORDPRESS_DB_HOST"
 
-    # Configure Redis settings
-    wp config set WP_REDIS_HOST "$REDIS_HOST" --allow-root
-    wp config set WP_REDIS_PORT "$REDIS_PORT" --raw --allow-root
-    wp config set WP_REDIS_DATABASE "$WP_REDIS_DATABASE" --raw --allow-root
-    wp config set WP_CACHE true --raw --allow-root
+    # Configure Redis settings (no password required)
+    wp config set WP_REDIS_HOST "$REDIS_HOST"
+    wp config set WP_REDIS_PORT "$REDIS_PORT" --raw
+    wp config set WP_REDIS_DATABASE "$WP_REDIS_DATABASE" --raw
+    wp config set WP_CACHE true --raw
 
     # Install WordPress
     wp core install \
@@ -46,22 +49,16 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
         --admin_user="$WORDPRESS_ADMIN_USER" \
         --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
         --admin_email="$WORDPRESS_ADMIN_EMAIL" \
-        --skip-email \
-        --allow-root
+        --skip-email
 
     # After wp core install
-    wp plugin install redis-cache --activate --allow-root
+    wp plugin install redis-cache --activate
 
     # Enable Redis in WordPress
-    wp redis enable --allow-root
+    wp redis enable
 
     echo "WordPress initialized successfully"
 fi
-
-# Set proper permissions
-chown -R www-data:www-data /var/www/html
-find /var/www/html -type d -exec chmod 755 {} \;
-find /var/www/html -type f -exec chmod 644 {} \;
 
 echo "Starting PHP-FPM..."
 # Use the correct PHP-FPM binary

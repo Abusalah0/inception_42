@@ -34,6 +34,9 @@ WORKDIR /var/www/html
 COPY ./tools/dockerfile-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/dockerfile-entrypoint.sh
 
+RUN touch /var/log/php7.4-fpm.log \
+    && chown www-data:www-data /var/log/php7.4-fpm.log
+
 EXPOSE 9000
 
 CMD ["/usr/local/bin/dockerfile-entrypoint.sh"]

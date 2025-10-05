@@ -13,7 +13,9 @@ RUN mkdir -p /var/lib/redis \
 RUN mkdir -p /etc/redis
 
 COPY tools/redis.conf /etc/redis/redis.conf
-RUN chown redis:redis /etc/redis/redis.conf
+COPY tools/dockerfile-entrypoint.sh /usr/local/bin/
+RUN chown redis:redis /etc/redis/redis.conf \
+    && chmod +x /usr/local/bin/dockerfile-entrypoint.sh
 
 # Create Redis log directory
 RUN mkdir -p /var/log/redis \
@@ -21,7 +23,5 @@ RUN mkdir -p /var/log/redis \
 
 EXPOSE 6379
 
-# Use redis user for security
-USER redis
-
-CMD ["redis-server", "/etc/redis/redis.conf"]
+# Start as root to read secrets, then switch to redis user in the entrypoint
+CMD ["/usr/local/bin/dockerfile-entrypoint.sh"]

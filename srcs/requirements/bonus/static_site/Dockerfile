@@ -22,7 +22,7 @@ RUN chown -R www-data:www-data /var/lib/nginx \
 
 EXPOSE 80
 
-# Test nginx config before starting
+# Test nginx configuration
 RUN nginx -t
 
 CMD ["nginx", "-g", "daemon off;"]
