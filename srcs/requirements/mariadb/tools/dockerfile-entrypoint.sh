@@ -4,37 +4,41 @@
 MYSQL_ROOT_PASSWORD=$(cat /run/secrets/mysql_root_password)
 MYSQL_PASSWORD=$(cat /run/secrets/mysql_password)
 
-if [ ! -d "/var/lib/mysql/mysql" ]; then
-    echo "MariaDB data directory not found, initializing database..."
+# Check if database is already initialized (flag file approach)
+if [ ! -f "/var/lib/mysql/.initialized" ]; then
+    echo "Initializing MariaDB database..."
     
-    # Initialize the database system tables
+    # Initialize database system tables
     mariadb-install-db --user=mysql --datadir=/var/lib/mysql --rpm --skip-test-db
     
-    echo "Starting temporary MariaDB instance for setup..."
+    # Start temporary instance for configuration
     mysqld --user=mysql --datadir=/var/lib/mysql --skip-networking --socket=/tmp/mysql_init.sock &
     MYSQL_PID="$!"
-
+    
+    # Wait for database to be ready
     until mysqladmin ping --socket=/tmp/mysql_init.sock --silent; do
-        echo "Waiting for database to start..."
         sleep 1
     done
-
-    echo "Database started, configuring..."
-
+    
+    # Configure database
     mysql --socket=/tmp/mysql_init.sock -u root << EOF
-    ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
-    CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
-    CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
-    GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '$MYSQL_USER'@'%';
-    FLUSH PRIVILEGES;
+ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
+CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
+CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
+GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '$MYSQL_USER'@'%';
+FLUSH PRIVILEGES;
 EOF
-
-    echo "Database $MYSQL_DATABASE created and configured"
+    
+    # Shutdown temporary instance
     kill "$MYSQL_PID"
     wait "$MYSQL_PID"
-    echo "Database initialization completed"
-    rm -f /tmp/mysql_init.sock
-fi 
+    
+    # Mark as initialized
+    touch /var/lib/mysql/.initialized
+    echo "MariaDB initialization completed"
+else
+    echo "MariaDB already initialized, skipping setup"
+fi
 
-echo "Starting MariaDB server..."
+# Start MariaDB server
 exec mysqld --user=mysql --datadir=/var/lib/mysql
