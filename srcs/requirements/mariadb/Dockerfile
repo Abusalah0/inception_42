@@ -21,15 +21,15 @@ RUN mkdir -p /var/lib/mysql \
  && chmod 755 /var/lib/mysql
 
 # copy custom config file to avoid "bind-address" error
-COPY tools/db.conf /etc/mysql/mariadb.conf.d/50-server.cnf
+COPY configs/mariadb.conf /etc/mysql/mariadb.conf.d/50-server.cnf
 RUN chmod 644 /etc/mysql/mariadb.conf.d/50-server.cnf
 
 # copy entrypoint script to set root password and create database
-COPY tools/dockerfile-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/dockerfile-entrypoint.sh
+COPY tools/mariadb-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mariadb-entrypoint.sh
 
 # the port mariadb server listens on
 EXPOSE 3306
 
 # Start as root to read secrets, entrypoint script runs mysqld as mysql user
-CMD ["dockerfile-entrypoint.sh"]
+CMD ["mariadb-entrypoint.sh"]

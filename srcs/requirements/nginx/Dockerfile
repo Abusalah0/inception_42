@@ -14,12 +14,12 @@ RUN apt-get update \
 RUN mkdir -p /var/log/nginx /var/cache/nginx /etc/nginx/ssl
 
 # Copy configuration files
-COPY "./tools/nginx.conf" "/etc/nginx/nginx.conf"
+COPY "./configs/nginx.conf" "/etc/nginx/nginx.conf"
 RUN chmod 644 /etc/nginx/nginx.conf
 
 # Copy entrypoint script
-COPY ./tools/dockerfile-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/dockerfile-entrypoint.sh
+COPY ./tools/nginx-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/nginx-entrypoint.sh
 
 # Create nginx user directories
 RUN chown -R www-data:www-data /var/log/nginx /var/cache/nginx
@@ -33,8 +33,6 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -out /etc/nginx/ssl/nginx-selfsigned.crt \
   -subj "/C=JO/ST=Amman/L=Amman/O=42/OU=Student/CN=${DOMAIN_NAME}"
 
-
-# HTTPS (443)
 EXPOSE 443
 
-CMD ["/usr/local/bin/dockerfile-entrypoint.sh"]
+CMD ["/usr/local/bin/nginx-entrypoint.sh"]

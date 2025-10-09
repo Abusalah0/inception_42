@@ -31,12 +31,12 @@ RUN sed -i 's/listen = \/run\/php\/php.*\.sock/listen = 0.0.0.0:9000/' /etc/php/
 WORKDIR /var/www/html
 
 # Copy entrypoint script
-COPY ./tools/dockerfile-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/dockerfile-entrypoint.sh
+COPY ./tools/wp-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/wp-entrypoint.sh
 
 RUN touch /var/log/php7.4-fpm.log \
     && chown www-data:www-data /var/log/php7.4-fpm.log
 
 EXPOSE 9000
 
-CMD ["/usr/local/bin/dockerfile-entrypoint.sh"]
+CMD ["/usr/local/bin/wp-entrypoint.sh"]
