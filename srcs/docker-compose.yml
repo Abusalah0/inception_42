@@ -124,7 +124,7 @@ services:
       start_period: 10s
   proftpd:
     build:
-      context: ./requirements/bonus/ftp_server
+      context: ./requirements/bonus/proftpd
       dockerfile: Dockerfile
     image: proftpd:inception
     container_name: proftpd
