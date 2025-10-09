@@ -10,7 +10,7 @@ RUN mkdir -p /var/lib/redis \
     && chown redis:redis /var/lib/redis \
     && chmod 755 /var/lib/redis
 
-COPY tools/redis.conf /etc/redis/redis.conf
+COPY configs/redis.conf /etc/redis/redis.conf
 RUN chown redis:redis /etc/redis/redis.conf
 
 EXPOSE 6379
