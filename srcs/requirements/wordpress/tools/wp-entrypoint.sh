@@ -71,10 +71,20 @@ wait_for_mysql() {
 # Wait for Redis to be available
 wait_for_redis() {
     log_info "Checking Redis availability..."
-    # Redis is optional, so we just do a quick check without blocking
-    # The Redis plugin will handle connection issues gracefully
-    sleep 2
-    log_info "Redis check completed"
+    local max_retries=10
+    local count=0
+    
+    # Try to connect to Redis (optional dependency)
+    while [ $count -lt $max_retries ]; do
+        if nc -z redis 6379 2>/dev/null || timeout 1 bash -c "cat < /dev/null > /dev/tcp/redis/6379" 2>/dev/null; then
+            log_info "Redis is available"
+            return 0
+        fi
+        count=$((count + 1))
+        sleep 1
+    done
+    
+    log_info "Redis not available (optional) - continuing without it"
     return 0
 }
 
