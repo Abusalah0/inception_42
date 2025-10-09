@@ -6,11 +6,21 @@ RUN apt-get update \
     php-common \
     php-cli \
     php-mysql \
-    ca-certificates
+    ca-certificates \
+    && mkdir -p /var/www \
+    && wget "http://www.adminer.org/latest.php" -O /var/www/adminer.php \
+    && apt-get remove -y wget \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN wget "http://www.adminer.org/latest.php" -O adminer.php
+# Create non-root user for running Adminer
+RUN useradd -r -u 1000 -s /bin/false adminer \
+    && chown adminer:adminer /var/www/adminer.php
 
+WORKDIR /var/www
 
 EXPOSE 8080
 
-ENTRYPOINT [ "php",  "-S",  "0.0.0.0:8080",  "adminer.php" ]
+USER adminer
+
+ENTRYPOINT ["php", "-S", "0.0.0.0:8080", "adminer.php"]

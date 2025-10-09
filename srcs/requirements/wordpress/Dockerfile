@@ -8,35 +8,30 @@ RUN apt-get update \
     php-redis \
     php php-fpm php-cli php-mysql php-curl php-gd php-mbstring php-xml php-zip \
     php-intl php-bcmath php-opcache \
-    && rm -rf /var/lib/apt/lists/*
-
-# Create WordPress directory and PHP-FPM run directory
-RUN mkdir -p /var/www/html /run/php \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /var/www/html /run/php \
     && chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html \
-    && chmod -R 755 /run/php
+    && chmod -R 755 /var/www/html /run/php
 
-# Install WordPress cli
+# Install WordPress CLI
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
     && chmod +x wp-cli.phar \
     && mv wp-cli.phar /usr/local/bin/wp
 
-# Configure PHP-FPM to listen on port 9000, instead of the default UDS socket
+# Configure PHP-FPM to listen on port 9000
 RUN sed -i 's/listen = \/run\/php\/php.*\.sock/listen = 0.0.0.0:9000/' /etc/php/*/fpm/pool.d/www.conf \
     && sed -i 's/;listen.owner = www-data/listen.owner = www-data/' /etc/php/*/fpm/pool.d/www.conf \
     && sed -i 's/;listen.group = www-data/listen.group = www-data/' /etc/php/*/fpm/pool.d/www.conf \
-    && sed -i 's/;listen.mode = 0660/listen.mode = 0660/' /etc/php/*/fpm/pool.d/www.conf
+    && sed -i 's/;listen.mode = 0660/listen.mode = 0660/' /etc/php/*/fpm/pool.d/www.conf \
+    && touch /var/log/php7.4-fpm.log \
+    && chown www-data:www-data /var/log/php7.4-fpm.log
 
-# Set working directory
 WORKDIR /var/www/html
 
 # Copy entrypoint script
-COPY ./tools/dockerfile-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/dockerfile-entrypoint.sh
-
-RUN touch /var/log/php7.4-fpm.log \
-    && chown www-data:www-data /var/log/php7.4-fpm.log
+COPY ./tools/wp-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/wp-entrypoint.sh
 
 EXPOSE 9000
 
-CMD ["/usr/local/bin/dockerfile-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/wp-entrypoint.sh"]
