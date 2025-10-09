@@ -122,7 +122,23 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
-
+  proftpd:
+    build:
+      context: ./requirements/bonus/ftp_server
+      dockerfile: Dockerfile
+    image: proftpd:inception
+    container_name: proftpd
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - inception_network
+    ports:
+      - "21:21"
+      - "2121:2121"
+      - "30000-30009:30000-30009"
+    volumes:
+      - wordpress_data:/home/ftpuser
 volumes:
   mariadb_data:
     driver: local
