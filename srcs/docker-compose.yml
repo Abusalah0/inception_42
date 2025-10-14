@@ -1,5 +1,3 @@
-#name: inception
-
 services:
   mariadb:
     build:
@@ -74,6 +72,17 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+  portainer:
+    build: ./requirements/bonus/portainer
+    container_name: portainer
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - inception_network
+    restart: unless-stopped
   adminer:
     build:
       context: ./requirements/bonus/adminer
@@ -136,6 +145,7 @@ volumes:
       type: none
       o: bind
       device: /home/abdsalah/data/wordpress
+  portainer_data:
 
 networks:
   inception_network:
