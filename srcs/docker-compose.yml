@@ -82,6 +82,8 @@ services:
       - portainer_data:/data
     networks:
       - inception_network
+    secrets:
+      - portainer_admin_password
     restart: unless-stopped
   adminer:
     build:
@@ -175,3 +177,5 @@ secrets:
     file: ../secrets/db_user.txt
   wordpress_admin_password:
     file: ../secrets/wp_admin.txt
+  portainer_admin_password:
+    file: ../secrets/portainer_admin.txt
