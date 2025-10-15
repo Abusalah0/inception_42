@@ -8,10 +8,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
     rm -rf /var/lib/apt/lists/*
 
 # Copy entrypoint script
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY portainer-entrypoint.sh /usr/local/bin/portainer-entrypoint.sh
+RUN chmod +x /usr/local/bin/portainer-entrypoint.sh
 
 EXPOSE 9443
 
-# Use entrypoint script to handle admin password setup
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# Use portainer-entrypoint script to handle admin password setup
+ENTRYPOINT ["/usr/local/bin/portainer-entrypoint.sh"]

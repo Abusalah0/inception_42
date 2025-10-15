@@ -1,15 +1,6 @@
 #!/bin/sh
 
-# WordPress Installation and Configuration Script
-# This script handles WordPress setup with proper error handling and modularity
-# Runs as www-data user for security
-
-# ============================================================================
-# Configuration and Setup
-# ============================================================================
-
-# Try to read passwords from Docker secrets first, fallback to environment variables
-# Note: SELinux may block direct file access to secrets in some configurations
+set -e
 
 if [ -f "/run/secrets/mysql_password" ] && [ -r "/run/secrets/mysql_password" ]; then
     MYSQL_PASSWORD=$(cat /run/secrets/mysql_password 2>/dev/null)
@@ -19,26 +10,20 @@ if [ -f "/run/secrets/wordpress_admin_password" ] && [ -r "/run/secrets/wordpres
     WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wordpress_admin_password 2>/dev/null)
 fi
 
-# Fallback to environment variables if secrets couldn't be read
-MYSQL_PASSWORD="${MYSQL_PASSWORD:-${MYSQL_PASSWORD_ENV}}"
-WORDPRESS_ADMIN_PASSWORD="${WORDPRESS_ADMIN_PASSWORD:-${WORDPRESS_ADMIN_PASSWORD_ENV}}"
+if [ -f "/run/secrets/wordpress_user_password" ] && [ -r "/run/secrets/wordpress_user_password" ]; then
+    WORDPRESS_USER_PASSWORD=$(cat /run/secrets/wordpress_user_password 2>/dev/null)
+fi
 
 # Validate that passwords are available
-if [ -z "$MYSQL_PASSWORD" ] || [ -z "$WORDPRESS_ADMIN_PASSWORD" ]; then
+if [ -z "$MYSQL_PASSWORD" ] || [ -z "$WORDPRESS_ADMIN_PASSWORD" ] || [ -z "$WORDPRESS_USER_PASSWORD" ]; then
     echo "[ERROR] Failed to load passwords from secrets or environment variables"
     echo "[ERROR] MYSQL_PASSWORD is $([ -z "$MYSQL_PASSWORD" ] && echo 'empty' || echo 'set')"
     echo "[ERROR] WORDPRESS_ADMIN_PASSWORD is $([ -z "$WORDPRESS_ADMIN_PASSWORD" ] && echo 'empty' || echo 'set')"
+    echo "[ERROR] WORDPRESS_USER_PASSWORD is $([ -z "$WORDPRESS_USER_PASSWORD" ] && echo 'empty' || echo 'set')"
     exit 1
 fi
 
 echo "[INFO] Successfully loaded passwords"
-
-# Change to WordPress directory
-cd /var/www/html
-
-# ============================================================================
-# Helper Functions
-# ============================================================================
 
 log_info() {
     echo "[INFO] $1"
@@ -160,6 +145,11 @@ install_wordpress() {
             log_error "Failed to install WordPress"
             return 1
         }
+        wp user create "$WORDPRESS_USER" "$WORDPRESS_USER_EMAIL" \
+            --role=author \
+            --user_pass="$WORDPRESS_USER_PASSWORD" \
+            --allow-root 2>/dev/null || \
+            log_info "Author user already exists or creation failed"
         log_info "WordPress installed successfully"
     else
         log_info "WordPress is already installed"
@@ -213,9 +203,6 @@ setup_redis_plugin() {
     return 0
 }
 
-# ============================================================================
-# Main Execution
-# ============================================================================
 
 main() {
     log_info "Starting WordPress initialization..."

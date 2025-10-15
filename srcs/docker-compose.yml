@@ -33,6 +33,7 @@ services:
     secrets:
       - mysql_password
       - wordpress_admin_password
+      - wordpress_user_password
     volumes:
       - wordpress_data:/var/www/html
     depends_on:
@@ -177,5 +178,7 @@ secrets:
     file: ../secrets/db_user.txt
   wordpress_admin_password:
     file: ../secrets/wp_admin.txt
+  wordpress_user_password:
+    file: ../secrets/wp_user.txt
   portainer_admin_password:
     file: ../secrets/portainer_admin.txt
