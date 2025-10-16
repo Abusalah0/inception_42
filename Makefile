@@ -3,6 +3,9 @@ VOLUME_DIRS = /home/abdsalah/data/mariadb /home/abdsalah/data/wordpress
 all: build up
 
 build:
+	docker compose -f ./srcs/docker-compose.yml build
+
+build-no-cache:
 	docker compose -f ./srcs/docker-compose.yml build --no-cache
 
 create-dirs:
@@ -14,7 +17,7 @@ up: create-dirs
 down:
 	docker compose -f ./srcs/docker-compose.yml down
 
-re: down up
+re: down build-no-cache up
 
 clean :
 	docker compose -f ./srcs/docker-compose.yml down --volumes
@@ -22,4 +25,4 @@ clean :
 fclean :
 	docker compose -f ./srcs/docker-compose.yml down --volumes --rmi all
 
-.PHONY: up down re clean fclean all build create-dirs
+.PHONY: up down re clean fclean all build create-dirs build-no-cache
