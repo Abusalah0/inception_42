@@ -8,7 +8,7 @@ if [ -f /run/secrets/portainer_admin_password ]; then
     
     # Start Portainer in the background
     /opt/portainer/portainer &
-    PORTAINER_PID=$!
+    PORTAINER_PID="$!"
     
     # Wait for Portainer to start
     echo "Waiting for Portainer to start..."
@@ -20,7 +20,7 @@ if [ -f /run/secrets/portainer_admin_password ]; then
       2>/dev/null || echo "Admin already initialized or API call failed"
     
     # Bring Portainer back to foreground
-    wait $PORTAINER_PID
+    wait "$PORTAINER_PID"
 else
     echo "Warning: No admin password secret found, starting without pre-configured admin"
     exec /opt/portainer/portainer

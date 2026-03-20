@@ -41,7 +41,7 @@ wait_for_mysql() {
     
     until mysqladmin ping -h"mariadb" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" --silent; do
         count=$((count + 1))
-        if [ $count -ge $max_retries ]; then
+        if [ "$count" -ge "$max_retries" ]; then
             log_error "MySQL connection timeout after $max_retries attempts"
             return 1
         fi
@@ -60,7 +60,7 @@ wait_for_redis() {
     local count=0
     
     # Try to connect to Redis (optional dependency)
-    while [ $count -lt $max_retries ]; do
+    while [ "$count" -lt "$max_retries" ]; do
         if nc -z redis 6379 2>/dev/null || timeout 1 bash -c "cat < /dev/null > /dev/tcp/redis/6379" 2>/dev/null; then
             log_info "Redis is available"
             return 0
