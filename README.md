@@ -1,7 +1,5 @@
 # Inception Infrastructure Platform (Dockerized WordPress Stack)
 
-[![CI](https://github.com/Abusalah0/inception_42/actions/workflows/ci.yml/badge.svg)](https://github.com/Abusalah0/inception_42/actions/workflows/ci.yml)
-
 Containerized multi-service infrastructure built for the 42 Inception project.
 The system is designed around service isolation, secure secret handling, persistent state, and reproducible local deployment.
 
