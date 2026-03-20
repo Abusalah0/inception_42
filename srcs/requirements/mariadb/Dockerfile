@@ -1,4 +1,4 @@
-# debian version required by the subject (mentally challenged subject) :)
+# debian version required by the subject
 FROM debian:11
 
 # install mariadb server and client
