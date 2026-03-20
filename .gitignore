@@ -1,1 +1,24 @@
+# Secrets and sensitive files
 secrets/
+
+# Environment configuration
+srcs/.env
+!srcs/.env.example
+
+# CI/Local runtime data
+.ci-data/
+
+# Docker artifacts
+.dockerignore
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Compiled dependencies
+node_modules/
+__pycache__/
