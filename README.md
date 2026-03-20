@@ -22,7 +22,7 @@ The system is designed around service isolation, secure secret handling, persist
   - [Data Persistence](#data-persistence)
   - [Security Considerations](#security-considerations)
   - [Design Decisions](#design-decisions)
-- [Challenges and Lessons Learned](#challenges-and-lessons-learned)
+- [References](#references)
 
 ## Getting Started
 
@@ -249,17 +249,43 @@ Services with persistent data:
 
 ### Design Decisions
 
-### Docker secrets vs environment variables
+#### Docker secrets vs environment variables
 
 - Secrets reduce accidental credential leakage in logs and image history.
 - Runtime reads from `/run/secrets/*` keep credentials external to source-controlled config.
 
-### Bind mounts vs managed volumes
+#### Bind mounts vs managed volumes
 
 - Bind mounts provide explicit host paths for predictable data location and easy inspection.
 - Useful in an educational/dev workflow where direct filesystem visibility is valuable.
 
-### Service separation
+#### Service separation
 
 - Nginx, WordPress, DB, cache, and tooling are split into independent containers.
 - Improves fault isolation, makes debugging clearer, and allows independent rebuild/restart.
+## References
+
+This project was built by studying and integrating best practices from the following resources:
+
+- **Docker & Container Best Practices**
+  - [Docker Dockerfile Reference](https://docs.docker.com/reference/dockerfile/)
+  - [Docker Build Best Practices](https://docs.docker.com/build/building/best-practices/)
+  - [Dockerfile Best Practices](https://medium.com/@aditya_misra5/dockerfile-best-practices-1de436c966a5)
+  - [Docker Dockerfile Best Practices (Historical)](https://github.com/openshift/dockerexec/blob/master/vendor/src/github.com/docker/docker/docs/sources/articles/dockerfile_best_practices.md)
+  - [OCI vs Docker: What is a Container?](https://www.theodo.com/en-fr/blog/oci-vs-docker-what-is-a-container)
+  - [PID 1 Handling in Kubernetes](https://about.gitlab.com/blog/how-we-removed-all-502-errors-by-caring-about-pid-1-in-kubernetes/)
+
+- **Docker Secrets & Security**
+  - [Docker Engine Swarm Secrets](https://docs.docker.com/engine/swarm/secrets/)
+  - [The Twelve-Factor App](https://12factor.net/)
+
+- **Environment Management**
+  - [direnv Documentation](https://direnv.net/)
+
+- **Service-Specific Documentation**
+  - [MariaDB Documentation](https://mariadb.com/docs/)
+  - [MariaDB Server Management & Automation](https://mariadb.com/docs/server/server-management/automated-mariadb-deployment-and-administration)
+  - [MariaDB Container Reference](https://github.com/hhorak/mariadb-container-doc/blob/master/10.1/Dockerfile)
+  - [WordPress Codex](https://codex.wordpress.org/Main_Page)
+  - [WordPress CLI Handbook](https://make.wordpress.org/cli/handbook/how-to/how-to-install/)
+  - [Nginx Configuration Management](https://docs.nginx.com/nginx/admin-guide/basic-functionality/managing-configuration-files/)
