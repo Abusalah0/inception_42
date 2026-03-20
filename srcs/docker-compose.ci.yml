@@ -1,0 +1,18 @@
+services:
+  nginx:
+    ports:
+      - "8443:443"
+
+volumes:
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${CI_PROJECT_DIR}/.ci-data/mariadb
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${CI_PROJECT_DIR}/.ci-data/wordpress
